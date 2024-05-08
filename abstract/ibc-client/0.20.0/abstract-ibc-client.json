@@ -746,6 +746,15 @@
                   "name"
                 ],
                 "properties": {
+                  "account_id": {
+                    "description": "If `None`, will create a new local account without asserting account-id.\n\nWhen provided: Signals the expected local Account Id. The tx will error if this does not match the account-id at runtime. Useful for instantiate2 address prediction.",
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "format": "uint32",
+                    "minimum": 0.0
+                  },
                   "base_asset": {
                     "anyOf": [
                       {
@@ -1073,6 +1082,19 @@
                     "type": "string"
                   }
                 }
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Renounced account This account no longer has an owner and cannot be used.",
+            "type": "object",
+            "required": [
+              "Renounced"
+            ],
+            "properties": {
+              "Renounced": {
+                "type": "object"
               }
             },
             "additionalProperties": false
@@ -1806,6 +1828,7 @@
     "title": "QueryMsg",
     "oneOf": [
       {
+        "description": "Queries the ownership of the ibc client contract Returns [`cw_ownable::Ownership<Addr>`]",
         "type": "object",
         "required": [
           "ownership"
@@ -1819,6 +1842,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns config Returns [`ConfigResponse`]",
         "type": "object",
         "required": [
           "config"
@@ -1832,6 +1856,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns the host information associated with a specific chain-name (e.g. osmosis, juno) Returns [`HostResponse`]",
         "type": "object",
         "required": [
           "host"
@@ -1853,6 +1878,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`ListAccountsResponse`]",
         "type": "object",
         "required": [
           "list_accounts"
@@ -1892,6 +1918,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`AccountResponse`]",
         "type": "object",
         "required": [
           "account"
@@ -1917,6 +1944,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`ListRemoteHostsResponse`]",
         "type": "object",
         "required": [
           "list_remote_hosts"
@@ -1930,6 +1958,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`ListRemoteProxiesResponse`]",
         "type": "object",
         "required": [
           "list_remote_proxies"
@@ -1943,6 +1972,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`ListRemoteProxiesResponse`]",
         "type": "object",
         "required": [
           "list_remote_proxies_by_account_id"
@@ -1964,6 +1994,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`ListIbcInfrastructureResponse`]",
         "type": "object",
         "required": [
           "list_ibc_infrastructures"
@@ -2059,20 +2090,18 @@
     },
     "config": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "HostResponse",
+      "title": "ConfigResponse",
       "type": "object",
       "required": [
-        "remote_host"
+        "ans_host",
+        "version_control_address"
       ],
       "properties": {
-        "remote_host": {
+        "ans_host": {
           "type": "string"
         },
-        "remote_polytone_proxy": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "version_control_address": {
+          "type": "string"
         }
       },
       "additionalProperties": false

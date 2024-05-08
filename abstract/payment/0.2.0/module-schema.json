@@ -136,6 +136,7 @@
     "title": "QueryMsg",
     "oneOf": [
       {
+        "description": "Returns [`ConfigResponse`]",
         "type": "object",
         "required": [
           "config"
@@ -149,6 +150,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`TipperResponse`]",
         "type": "object",
         "required": [
           "tipper"
@@ -169,7 +171,7 @@
                   "null"
                 ],
                 "format": "uint64",
-                "minimum": 0.0
+                "minimum": 0
               },
               "limit": {
                 "type": [
@@ -177,7 +179,7 @@
                   "null"
                 ],
                 "format": "uint32",
-                "minimum": 0.0
+                "minimum": 0
               },
               "start_after": {
                 "anyOf": [
@@ -196,6 +198,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`TipCountResponse`]",
         "type": "object",
         "required": [
           "tip_count"
@@ -209,6 +212,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`TippersCountResponse`]",
         "type": "object",
         "required": [
           "list_tippers_count"
@@ -223,7 +227,7 @@
                   "null"
                 ],
                 "format": "uint32",
-                "minimum": 0.0
+                "minimum": 0
               },
               "start_after": {
                 "type": [
@@ -324,7 +328,7 @@
             "count": {
               "type": "integer",
               "format": "uint32",
-              "minimum": 0.0
+              "minimum": 0
             }
           },
           "additionalProperties": false
@@ -342,7 +346,7 @@
         "count": {
           "type": "integer",
           "format": "uint32",
-          "minimum": 0.0
+          "minimum": 0
         }
       },
       "additionalProperties": false
@@ -363,7 +367,7 @@
         "tip_count": {
           "type": "integer",
           "format": "uint32",
-          "minimum": 0.0
+          "minimum": 0
         },
         "total_amounts": {
           "type": "array",

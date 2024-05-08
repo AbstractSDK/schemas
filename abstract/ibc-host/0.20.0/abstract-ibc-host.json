@@ -423,6 +423,15 @@
                   "name"
                 ],
                 "properties": {
+                  "account_id": {
+                    "description": "If `None`, will create a new local account without asserting account-id.\n\nWhen provided: Signals the expected local Account Id. The tx will error if this does not match the account-id at runtime. Useful for instantiate2 address prediction.",
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "format": "uint32",
+                    "minimum": 0.0
+                  },
                   "base_asset": {
                     "anyOf": [
                       {
@@ -732,6 +741,19 @@
               }
             },
             "additionalProperties": false
+          },
+          {
+            "description": "Renounced account This account no longer has an owner and cannot be used.",
+            "type": "object",
+            "required": [
+              "Renounced"
+            ],
+            "properties": {
+              "Renounced": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -1012,6 +1034,7 @@
     "description": "Query Host message",
     "oneOf": [
       {
+        "description": "Queries the ownership of the ibc client contract Returns [`cw_ownable::Ownership<Addr>`]",
         "type": "object",
         "required": [
           "ownership"
@@ -1039,7 +1062,7 @@
         "additionalProperties": false
       },
       {
-        "description": "Returns [`ClientProxiesResponse`]. Lists all the polytone proxy contracts and their respective client chain registered with the host.",
+        "description": "Lists all the polytone proxy contracts and their respective client chain registered with the host. Returns [`ClientProxiesResponse`].",
         "type": "object",
         "required": [
           "client_proxies"
@@ -1069,7 +1092,7 @@
         "additionalProperties": false
       },
       {
-        "description": "Returns [`ClientProxyResponse`]. Returns the polytone proxy contract address for a specific client chain.",
+        "description": "Returns the polytone proxy contract address for a specific client chain. Returns [`ClientProxyResponse`].",
         "type": "object",
         "required": [
           "client_proxy"

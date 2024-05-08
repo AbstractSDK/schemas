@@ -193,6 +193,19 @@
               }
             },
             "additionalProperties": false
+          },
+          {
+            "description": "Renounced account This account no longer has an owner and cannot be used.",
+            "type": "object",
+            "required": [
+              "Renounced"
+            ],
+            "properties": {
+              "Renounced": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -426,6 +439,15 @@
               "name"
             ],
             "properties": {
+              "account_id": {
+                "description": "If `None`, will create a new local account without asserting account-id.\n\nWhen provided: Signals the expected local Account Id. The tx will error if this does not match the account-id at runtime. Useful for instantiate2 address prediction.",
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "uint32",
+                "minimum": 0.0
+              },
               "base_asset": {
                 "anyOf": [
                   {
@@ -799,6 +821,19 @@
               }
             },
             "additionalProperties": false
+          },
+          {
+            "description": "Renounced account This account no longer has an owner and cannot be used.",
+            "type": "object",
+            "required": [
+              "Renounced"
+            ],
+            "properties": {
+              "Renounced": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -1063,6 +1098,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`SubAccountIdsResponse`]",
         "type": "object",
         "required": [
           "sub_account_ids"
@@ -1094,6 +1130,7 @@
         "additionalProperties": false
       },
       {
+        "description": "Returns [`TopLevelOwnerResponse`]",
         "type": "object",
         "required": [
           "top_level_owner"
@@ -1360,6 +1397,19 @@
                       "type": "string"
                     }
                   }
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "description": "Renounced account This account no longer has an owner and cannot be used.",
+              "type": "object",
+              "required": [
+                "Renounced"
+              ],
+              "properties": {
+                "Renounced": {
+                  "type": "object"
                 }
               },
               "additionalProperties": false
