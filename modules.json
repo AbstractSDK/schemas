@@ -1,14 +1,57 @@
 {
+  "4t2": [
+    "autocompounder",
+    "fee-collector"
+  ],
   "abstract": [
+    "account-factory",
+    "ans-host",
+    "betting",
+    "calendar",
+    "challenge",
+    "croncat",
+    "cw-staking",
+    "cw20-merkle-airdrop",
+    "dca",
     "dex",
+    "dice",
     "etf",
+    "gas-station",
     "ibc-client",
+    "ibc-host",
     "manager",
+    "metadata.json",
+    "module-factory",
     "nois",
+    "os-factory",
+    "osmosis",
+    "payment",
     "proxy",
     "subscription",
     "tendermint-staking",
-    "version_control",
+    "version-control",
     "vesting"
+  ],
+  "croncat": [
+    "app",
+    "cron"
+  ],
+  "cw-plus": [
+    "cw1-subkeys",
+    "cw1-whitelist",
+    "cw20-base",
+    "cw20-ics20",
+    "cw3-fixed-multisig",
+    "cw3-flex-multisig",
+    "cw4-group",
+    "cw4-stake"
+  ],
+  "test": [
+    "cron",
+    "jury-duty",
+    "nois-proxy"
+  ],
+  "woot": [
+    "payment-app"
   ]
 }
