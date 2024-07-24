@@ -24,7 +24,7 @@
       ],
       "properties": {
         "module": {
-          "$ref": "#/definitions/AppExecuteMsg"
+          "$ref": "#/definitions/AdapterRequestMsg_for_TendermintStakingExecuteMsg"
         }
       },
       "additionalProperties": false
@@ -63,7 +63,7 @@
       ],
       "properties": {
         "receive": {
-          "$ref": "#/definitions/Cw20ReceiveMsg"
+          "$ref": "#/definitions/Empty"
         }
       },
       "additionalProperties": false
@@ -121,52 +121,31 @@
         }
       ]
     },
-    "AppExecuteMsg": {
-      "description": "PaymentApp execute messages",
+    "AdapterBaseMsg": {
+      "description": "Configuration message for the adapter",
       "oneOf": [
         {
+          "description": "Add or remove authorized addresses If an authorized address is both in to_add and to_remove, it will be removed.",
           "type": "object",
           "required": [
-            "tip"
+            "update_authorized_addresses"
           ],
           "properties": {
-            "tip": {
+            "update_authorized_addresses": {
               "type": "object",
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "update_config"
-          ],
-          "properties": {
-            "update_config": {
-              "type": "object",
+              "required": [
+                "to_add",
+                "to_remove"
+              ],
               "properties": {
-                "denom_asset": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                "to_add": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
-                "desired_asset": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/definitions/Clearable_for_AssetEntry"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "exchanges": {
-                  "type": [
-                    "array",
-                    "null"
-                  ],
+                "to_remove": {
+                  "type": "array",
                   "items": {
                     "type": "string"
                   }
@@ -179,9 +158,29 @@
         }
       ]
     },
-    "AssetEntry": {
-      "description": "An unchecked ANS asset entry. This is a string that is formatted as `src_chain>[intermediate_chain>]asset_name`",
-      "type": "string"
+    "AdapterRequestMsg_for_TendermintStakingExecuteMsg": {
+      "description": "An adapter request. If proxy is None, then the sender must be an Account manager and the proxy address is extrapolated from the Account id.",
+      "type": "object",
+      "required": [
+        "request"
+      ],
+      "properties": {
+        "proxy_address": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "request": {
+          "description": "The actual request",
+          "allOf": [
+            {
+              "$ref": "#/definitions/TendermintStakingExecuteMsg"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
     },
     "Attribute": {
       "description": "An key value pair that is used in the context of event attributes in logs",
@@ -317,36 +316,23 @@
       ]
     },
     "BaseExecuteMsg": {
-      "oneOf": [
-        {
-          "description": "Updates the base config",
-          "type": "object",
-          "required": [
-            "update_config"
-          ],
-          "properties": {
-            "update_config": {
-              "type": "object",
-              "properties": {
-                "ans_host_address": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "version_control_address": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
+      "type": "object",
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "$ref": "#/definitions/AdapterBaseMsg"
+        },
+        "proxy_address": {
+          "description": "The Proxy address for which to apply the configuration If None, the sender must be an Account manager and the configuration is applied to its associated proxy. If Some, the sender must be a direct or indirect owner (through sub-accounts) of the specified proxy.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
-      ]
+      },
+      "additionalProperties": false
     },
     "Binary": {
       "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
@@ -366,52 +352,6 @@
               "$ref": "#/definitions/Binary"
             }
           ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "Clearable_for_AssetEntry": {
-      "description": "A type representing a value that can either be cleared or set with a value of type `C`. ``` use cosmwasm_std::{StdResult, Response, DepsMut}; use cw_storage_plus::Item; use cw_clearable::Clearable;\n\nconst FOO: Item<Option<u32>> = Item::new(\"foo\");\n\npub fn update_config(deps: DepsMut, foo: Option<Clearable<u32>>) -> StdResult<Response>{ if let Some(foo) = foo { FOO.save(deps.storage, &foo.into()); } Ok(Response::new()) } ```",
-      "oneOf": [
-        {
-          "description": "Clear the current state.",
-          "type": "string",
-          "enum": [
-            "clear"
-          ]
-        },
-        {
-          "description": "Set state with a value of type `C`.",
-          "type": "object",
-          "required": [
-            "set"
-          ],
-          "properties": {
-            "set": {
-              "$ref": "#/definitions/AssetEntry"
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "Cw20ReceiveMsg": {
-      "description": "Cw20ReceiveMsg should be de/serialized under `Receive()` variant in a ExecuteMsg",
-      "type": "object",
-      "required": [
-        "amount",
-        "msg",
-        "sender"
-      ],
-      "properties": {
-        "amount": {
-          "$ref": "#/definitions/Uint128"
-        },
-        "msg": {
-          "$ref": "#/definitions/Binary"
-        },
-        "sender": {
-          "type": "string"
         }
       },
       "additionalProperties": false
@@ -507,6 +447,10 @@
           "additionalProperties": false
         }
       ]
+    },
+    "Empty": {
+      "description": "An empty struct that serves as a placeholder in different places, such as contracts that don't set a custom message.\n\nIt is designed to be expressable in correct JSON and JSON Schema but contains no meaningful data. Previously we used enums without cases, but those cannot represented as valid JSON Schema (https://github.com/CosmWasm/cosmwasm/issues/451)",
+      "type": "object"
     },
     "ErrorResponse": {
       "type": "object",
@@ -1201,6 +1145,176 @@
           }
         }
       }
+    },
+    "TendermintStakingExecuteMsg": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "delegate"
+          ],
+          "properties": {
+            "delegate": {
+              "type": "object",
+              "required": [
+                "amount",
+                "validator"
+              ],
+              "properties": {
+                "amount": {
+                  "$ref": "#/definitions/Uint128"
+                },
+                "validator": {
+                  "description": "Validator address",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "undelegate_from"
+          ],
+          "properties": {
+            "undelegate_from": {
+              "type": "object",
+              "required": [
+                "validator"
+              ],
+              "properties": {
+                "amount": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Uint128"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validator": {
+                  "description": "Validator address",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "undelegate_all"
+          ],
+          "properties": {
+            "undelegate_all": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "redelegate"
+          ],
+          "properties": {
+            "redelegate": {
+              "type": "object",
+              "required": [
+                "destination_validator",
+                "source_validator"
+              ],
+              "properties": {
+                "amount": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Uint128"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "destination_validator": {
+                  "description": "Validator address",
+                  "type": "string"
+                },
+                "source_validator": {
+                  "description": "Validator address",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "set_withdraw_address"
+          ],
+          "properties": {
+            "set_withdraw_address": {
+              "type": "object",
+              "required": [
+                "new_withdraw_address"
+              ],
+              "properties": {
+                "new_withdraw_address": {
+                  "description": "The new `withdraw_address`",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "withdraw_delegator_reward"
+          ],
+          "properties": {
+            "withdraw_delegator_reward": {
+              "type": "object",
+              "required": [
+                "validator"
+              ],
+              "properties": {
+                "validator": {
+                  "description": "Validator address",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Withdraw all the rewards",
+          "type": "object",
+          "required": [
+            "withdraw_all_rewards"
+          ],
+          "properties": {
+            "withdraw_all_rewards": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "TruncatedChainId": {
       "description": "The name of a chain, aka the chain-id without the post-fix number. ex. `cosmoshub-4` -> `cosmoshub`, `juno-1` -> `juno`",
