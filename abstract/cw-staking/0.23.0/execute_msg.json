@@ -24,7 +24,7 @@
       ],
       "properties": {
         "module": {
-          "$ref": "#/definitions/AppExecuteMsg"
+          "$ref": "#/definitions/AdapterRequestMsg_for_StakingExecuteMsg"
         }
       },
       "additionalProperties": false
@@ -63,7 +63,7 @@
       ],
       "properties": {
         "receive": {
-          "$ref": "#/definitions/Cw20ReceiveMsg"
+          "$ref": "#/definitions/Empty"
         }
       },
       "additionalProperties": false
@@ -121,52 +121,31 @@
         }
       ]
     },
-    "AppExecuteMsg": {
-      "description": "PaymentApp execute messages",
+    "AdapterBaseMsg": {
+      "description": "Configuration message for the adapter",
       "oneOf": [
         {
+          "description": "Add or remove authorized addresses If an authorized address is both in to_add and to_remove, it will be removed.",
           "type": "object",
           "required": [
-            "tip"
+            "update_authorized_addresses"
           ],
           "properties": {
-            "tip": {
+            "update_authorized_addresses": {
               "type": "object",
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "update_config"
-          ],
-          "properties": {
-            "update_config": {
-              "type": "object",
+              "required": [
+                "to_add",
+                "to_remove"
+              ],
               "properties": {
-                "denom_asset": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                "to_add": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
-                "desired_asset": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/definitions/Clearable_for_AssetEntry"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "exchanges": {
-                  "type": [
-                    "array",
-                    "null"
-                  ],
+                "to_remove": {
+                  "type": "array",
                   "items": {
                     "type": "string"
                   }
@@ -178,6 +157,45 @@
           "additionalProperties": false
         }
       ]
+    },
+    "AdapterRequestMsg_for_StakingExecuteMsg": {
+      "description": "An adapter request. If proxy is None, then the sender must be an Account manager and the proxy address is extrapolated from the Account id.",
+      "type": "object",
+      "required": [
+        "request"
+      ],
+      "properties": {
+        "proxy_address": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "request": {
+          "description": "The actual request",
+          "allOf": [
+            {
+              "$ref": "#/definitions/StakingExecuteMsg"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "AnsAsset": {
+      "type": "object",
+      "required": [
+        "amount",
+        "name"
+      ],
+      "properties": {
+        "amount": {
+          "$ref": "#/definitions/Uint128"
+        },
+        "name": {
+          "$ref": "#/definitions/AssetEntry"
+        }
+      }
     },
     "AssetEntry": {
       "description": "An unchecked ANS asset entry. This is a string that is formatted as `src_chain>[intermediate_chain>]asset_name`",
@@ -317,36 +335,23 @@
       ]
     },
     "BaseExecuteMsg": {
-      "oneOf": [
-        {
-          "description": "Updates the base config",
-          "type": "object",
-          "required": [
-            "update_config"
-          ],
-          "properties": {
-            "update_config": {
-              "type": "object",
-              "properties": {
-                "ans_host_address": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                },
-                "version_control_address": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
+      "type": "object",
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "$ref": "#/definitions/AdapterBaseMsg"
+        },
+        "proxy_address": {
+          "description": "The Proxy address for which to apply the configuration If None, the sender must be an Account manager and the configuration is applied to its associated proxy. If Some, the sender must be a direct or indirect owner (through sub-accounts) of the specified proxy.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
-      ]
+      },
+      "additionalProperties": false
     },
     "Binary": {
       "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
@@ -366,52 +371,6 @@
               "$ref": "#/definitions/Binary"
             }
           ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "Clearable_for_AssetEntry": {
-      "description": "A type representing a value that can either be cleared or set with a value of type `C`. ``` use cosmwasm_std::{StdResult, Response, DepsMut}; use cw_storage_plus::Item; use cw_clearable::Clearable;\n\nconst FOO: Item<Option<u32>> = Item::new(\"foo\");\n\npub fn update_config(deps: DepsMut, foo: Option<Clearable<u32>>) -> StdResult<Response>{ if let Some(foo) = foo { FOO.save(deps.storage, &foo.into()); } Ok(Response::new()) } ```",
-      "oneOf": [
-        {
-          "description": "Clear the current state.",
-          "type": "string",
-          "enum": [
-            "clear"
-          ]
-        },
-        {
-          "description": "Set state with a value of type `C`.",
-          "type": "object",
-          "required": [
-            "set"
-          ],
-          "properties": {
-            "set": {
-              "$ref": "#/definitions/AssetEntry"
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "Cw20ReceiveMsg": {
-      "description": "Cw20ReceiveMsg should be de/serialized under `Receive()` variant in a ExecuteMsg",
-      "type": "object",
-      "required": [
-        "amount",
-        "msg",
-        "sender"
-      ],
-      "properties": {
-        "amount": {
-          "$ref": "#/definitions/Uint128"
-        },
-        "msg": {
-          "$ref": "#/definitions/Binary"
-        },
-        "sender": {
-          "type": "string"
         }
       },
       "additionalProperties": false
@@ -507,6 +466,44 @@
           "additionalProperties": false
         }
       ]
+    },
+    "Duration": {
+      "description": "Duration is a delta of time. You can add it to a BlockInfo or Expiration to move that further in the future. Note that an height-based Duration and a time-based Expiration cannot be combined",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "height"
+          ],
+          "properties": {
+            "height": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Time in seconds",
+          "type": "object",
+          "required": [
+            "time"
+          ],
+          "properties": {
+            "time": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Empty": {
+      "description": "An empty struct that serves as a placeholder in different places, such as contracts that don't set a custom message.\n\nIt is designed to be expressable in correct JSON and JSON Schema but contains no meaningful data. Previously we used enums without cases, but those cannot represented as valid JSON Schema (https://github.com/CosmWasm/cosmwasm/issues/451)",
+      "type": "object"
     },
     "ErrorResponse": {
       "type": "object",
@@ -1078,6 +1075,160 @@
           }
         }
       ]
+    },
+    "StakingAction": {
+      "description": "Possible actions to perform on the staking contract All provide an asset [AnsAsset] information",
+      "oneOf": [
+        {
+          "description": "Stakes/bonds a given token",
+          "type": "object",
+          "required": [
+            "stake"
+          ],
+          "properties": {
+            "stake": {
+              "type": "object",
+              "required": [
+                "assets"
+              ],
+              "properties": {
+                "assets": {
+                  "description": "The ANS-resolvable asset information of the assets to stake.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/AnsAsset"
+                  }
+                },
+                "unbonding_period": {
+                  "description": "The unbonding period for the specified stake.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Duration"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Unstake/unbond a given token",
+          "type": "object",
+          "required": [
+            "unstake"
+          ],
+          "properties": {
+            "unstake": {
+              "type": "object",
+              "required": [
+                "assets"
+              ],
+              "properties": {
+                "assets": {
+                  "description": "The ANS-resolvable asset information of the assets to unstake.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/AnsAsset"
+                  }
+                },
+                "unbonding_period": {
+                  "description": "The unbonding period for the specified stake.",
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Duration"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Claim rewards for a set of staked assets.",
+          "type": "object",
+          "required": [
+            "claim_rewards"
+          ],
+          "properties": {
+            "claim_rewards": {
+              "type": "object",
+              "required": [
+                "assets"
+              ],
+              "properties": {
+                "assets": {
+                  "description": "Staked assets to claim rewards for.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/AssetEntry"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Claim matured unbonding tokens",
+          "type": "object",
+          "required": [
+            "claim"
+          ],
+          "properties": {
+            "claim": {
+              "type": "object",
+              "required": [
+                "assets"
+              ],
+              "properties": {
+                "assets": {
+                  "description": "Unbonded staking assets to claim.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/AssetEntry"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "StakingExecuteMsg": {
+      "description": "A request message that's sent to this staking adapter",
+      "type": "object",
+      "required": [
+        "action",
+        "provider"
+      ],
+      "properties": {
+        "action": {
+          "description": "the action to execute, see [StakingAction]",
+          "allOf": [
+            {
+              "$ref": "#/definitions/StakingAction"
+            }
+          ]
+        },
+        "provider": {
+          "description": "The name of the staking provider",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     },
     "StakingQuery": {
       "oneOf": [
