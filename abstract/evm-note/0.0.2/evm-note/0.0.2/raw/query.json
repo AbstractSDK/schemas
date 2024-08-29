@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "oneOf": [
+    {
+      "description": "This channel this note is currently connected to, or none if no channel is connected.",
+      "type": "string",
+      "enum": [
+        "active_channel"
+      ]
+    },
+    {
+      "description": "The contract's corresponding voice on a remote chain.",
+      "type": "string",
+      "enum": [
+        "pair"
+      ]
+    },
+    {
+      "description": "Returns the remote address for the provided local address. If no account exists, returns `None`. An account can be created by calling `ExecuteMsg::Execute` with the sender being `local_address`.",
+      "type": "object",
+      "required": [
+        "remote_address"
+      ],
+      "properties": {
+        "remote_address": {
+          "type": "object",
+          "required": [
+            "local_address"
+          ],
+          "properties": {
+            "local_address": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Currently set gas limit",
+      "type": "string",
+      "enum": [
+        "block_max_gas"
+      ]
+    },
+    {
+      "description": "Returns the stored ack info for debugging purposes.",
+      "type": "object",
+      "required": [
+        "ack_infos"
+      ],
+      "properties": {
+        "ack_infos": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0.0
+            },
+            "start_after": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Evm Note",
+  "description": "Control Interchain Accounts on EVM chains",
+  "website": "https://abstract.money",
+  "docs": "https://docs.abstract.money",
+  "type": "standalone",
+  "icon": "FaMusic",
+  "enabled": true
+}

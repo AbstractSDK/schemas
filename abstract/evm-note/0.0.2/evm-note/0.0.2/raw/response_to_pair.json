@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Nullable_Pair",
+  "anyOf": [
+    {
+      "$ref": "#/definitions/Pair"
+    },
+    {
+      "type": "null"
+    }
+  ],
+  "definitions": {
+    "Pair": {
+      "description": "This contract's voice. There is one voice per note, and many notes per voice.",
+      "type": "object",
+      "required": [
+        "connection_id",
+        "remote_port"
+      ],
+      "properties": {
+        "connection_id": {
+          "type": "string"
+        },
+        "remote_port": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
