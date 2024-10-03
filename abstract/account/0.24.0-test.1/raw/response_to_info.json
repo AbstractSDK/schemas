@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InfoResponse",
+  "type": "object",
+  "required": [
+    "info"
+  ],
+  "properties": {
+    "info": {
+      "$ref": "#/definitions/AccountInfo"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "AccountInfo": {
+      "description": "Abstract Account details.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "link": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
