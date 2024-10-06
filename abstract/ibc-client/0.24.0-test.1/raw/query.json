@@ -1,0 +1,243 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "oneOf": [
+    {
+      "description": "Queries the ownership of the ibc client contract Returns [`cw_ownable::Ownership<Addr>`]",
+      "type": "object",
+      "required": [
+        "ownership"
+      ],
+      "properties": {
+        "ownership": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Returns config Returns [`ConfigResponse`]",
+      "type": "object",
+      "required": [
+        "config"
+      ],
+      "properties": {
+        "config": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Returns the host information associated with a specific chain-name (e.g. osmosis, juno) Returns [`HostResponse`]",
+      "type": "object",
+      "required": [
+        "host"
+      ],
+      "properties": {
+        "host": {
+          "type": "object",
+          "required": [
+            "chain_name"
+          ],
+          "properties": {
+            "chain_name": {
+              "$ref": "#/definitions/TruncatedChainId"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Get list of remote accounts Returns [`ListAccountsResponse`]",
+      "type": "object",
+      "required": [
+        "list_accounts"
+      ],
+      "properties": {
+        "list_accounts": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "start": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": [
+                {
+                  "$ref": "#/definitions/AccountId"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "maxItems": 2,
+              "minItems": 2
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Get remote proxy address for one chain Returns [`AccountResponse`]",
+      "type": "object",
+      "required": [
+        "account"
+      ],
+      "properties": {
+        "account": {
+          "type": "object",
+          "required": [
+            "account_id",
+            "chain_name"
+          ],
+          "properties": {
+            "account_id": {
+              "$ref": "#/definitions/AccountId"
+            },
+            "chain_name": {
+              "$ref": "#/definitions/TruncatedChainId"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Get the hosts Returns [`ListRemoteHostsResponse`]",
+      "type": "object",
+      "required": [
+        "list_remote_hosts"
+      ],
+      "properties": {
+        "list_remote_hosts": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Get the IBC execution proxies Returns [`ListRemoteProxiesResponse`]",
+      "type": "object",
+      "required": [
+        "list_remote_proxies"
+      ],
+      "properties": {
+        "list_remote_proxies": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Get the IBC execution proxies based on the account id passed Returns [`ListRemoteProxiesResponse`]",
+      "type": "object",
+      "required": [
+        "list_remote_proxies_by_account_id"
+      ],
+      "properties": {
+        "list_remote_proxies_by_account_id": {
+          "type": "object",
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "account_id": {
+              "$ref": "#/definitions/AccountId"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Get the IBC counterparts connected to this abstract ibc client Returns [`ListIbcInfrastructureResponse`]",
+      "type": "object",
+      "required": [
+        "list_ibc_infrastructures"
+      ],
+      "properties": {
+        "list_ibc_infrastructures": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "AccountId": {
+      "description": "Unique identifier for an account. On each chain this is unique.",
+      "type": "object",
+      "required": [
+        "seq",
+        "trace"
+      ],
+      "properties": {
+        "seq": {
+          "description": "Unique identifier for the accounts create on a local chain. Is reused when creating an interchain account.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "trace": {
+          "description": "Sequence of the chain that triggered the IBC account creation `AccountTrace::Local` if the account was created locally Example: Account created on Juno which has an abstract interchain account on Osmosis, which in turn creates an interchain account on Terra -> `AccountTrace::Remote(vec![\"juno\", \"osmosis\"])`",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AccountTrace"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "AccountTrace": {
+      "description": "The identifier of chain that triggered the account creation",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "local"
+          ]
+        },
+        {
+          "type": "object",
+          "required": [
+            "remote"
+          ],
+          "properties": {
+            "remote": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TruncatedChainId"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "TruncatedChainId": {
+      "description": "The name of a chain, aka the chain-id without the post-fix number. ex. `cosmoshub-4` -> `cosmoshub`, `juno-1` -> `juno`",
+      "type": "string"
+    }
+  }
+}
