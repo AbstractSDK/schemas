@@ -1,0 +1,9 @@
+{
+  "name": "Account Prediction App",
+  "description": "Create a round with multiple accounts to predict the winner",
+  "website": "",
+  "docs": "",
+  "type": "app",
+  "icon": "GiTrade",
+  "enabled": true
+}
