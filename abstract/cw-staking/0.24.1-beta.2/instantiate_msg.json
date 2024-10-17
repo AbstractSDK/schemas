@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "MigrateMsg",
+  "title": "InstantiateMsg",
   "type": "object",
   "required": [
     "base",
@@ -8,15 +8,15 @@
   ],
   "properties": {
     "base": {
-      "description": "base migrate information",
+      "description": "base instantiate information",
       "allOf": [
         {
-          "$ref": "#/definitions/BaseMigrateMsg"
+          "$ref": "#/definitions/BaseInstantiateMsg"
         }
       ]
     },
     "module": {
-      "description": "custom migrate msg",
+      "description": "custom instantiate msg",
       "allOf": [
         {
           "$ref": "#/definitions/Empty"
@@ -26,7 +26,8 @@
   },
   "additionalProperties": false,
   "definitions": {
-    "BaseMigrateMsg": {
+    "BaseInstantiateMsg": {
+      "description": "Used by Abstract to instantiate the contract The contract is then registered on the registry contract using [`crate::registry::ExecuteMsg::ProposeModules`].",
       "type": "object",
       "additionalProperties": false
     },

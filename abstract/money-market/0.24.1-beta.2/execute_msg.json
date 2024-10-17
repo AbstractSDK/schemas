@@ -24,7 +24,7 @@
       ],
       "properties": {
         "module": {
-          "$ref": "#/definitions/ChallengeExecuteMsg"
+          "$ref": "#/definitions/AdapterRequestMsg_for_MoneyMarketExecuteMsg"
         }
       },
       "additionalProperties": false
@@ -108,9 +108,142 @@
         }
       ]
     },
+    "AdapterBaseMsg": {
+      "description": "Configuration message for the adapter",
+      "oneOf": [
+        {
+          "description": "Add or remove authorized addresses If an authorized address is both in to_add and to_remove, it will be removed.",
+          "type": "object",
+          "required": [
+            "update_authorized_addresses"
+          ],
+          "properties": {
+            "update_authorized_addresses": {
+              "type": "object",
+              "required": [
+                "to_add",
+                "to_remove"
+              ],
+              "properties": {
+                "to_add": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "to_remove": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "AdapterRequestMsg_for_MoneyMarketExecuteMsg": {
+      "description": "An adapter request. If account is None, then the sender must be an Account.",
+      "type": "object",
+      "required": [
+        "request"
+      ],
+      "properties": {
+        "account_address": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "request": {
+          "description": "The actual request",
+          "allOf": [
+            {
+              "$ref": "#/definitions/MoneyMarketExecuteMsg"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "AnsAsset": {
+      "type": "object",
+      "required": [
+        "amount",
+        "name"
+      ],
+      "properties": {
+        "amount": {
+          "$ref": "#/definitions/Uint128"
+        },
+        "name": {
+          "$ref": "#/definitions/AssetEntry"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AssetBase_for_String": {
+      "description": "Represents a fungible asset with a known amount\n\nEach asset instance contains two values: `info`, which specifies the asset's type (CW20 or native), and its `amount`, which specifies the asset's amount.",
+      "type": "object",
+      "required": [
+        "amount",
+        "info"
+      ],
+      "properties": {
+        "amount": {
+          "description": "Specifies the asset's amount",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Uint128"
+            }
+          ]
+        },
+        "info": {
+          "description": "Specifies the asset's type (CW20 or native)",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AssetInfoBase_for_String"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "AssetEntry": {
       "description": "An unchecked ANS asset entry. This is a string that is formatted as `src_chain>[intermediate_chain>]asset_name`",
       "type": "string"
+    },
+    "AssetInfoBase_for_String": {
+      "description": "Represents the type of an fungible asset.\n\nEach **asset info** instance can be one of three variants:\n\n- Native SDK coins. To create an **asset info** instance of this type, provide the denomination. - CW20 tokens. To create an **asset info** instance of this type, provide the contract address.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "native"
+          ],
+          "properties": {
+            "native": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "cw20"
+          ],
+          "properties": {
+            "cw20": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "Attribute": {
       "description": "An key value pair that is used in the context of event attributes in logs",
@@ -252,22 +385,23 @@
       ]
     },
     "BaseExecuteMsg": {
-      "oneOf": [
-        {
-          "description": "Updates the base config",
-          "type": "object",
-          "required": [
-            "update_config"
-          ],
-          "properties": {
-            "update_config": {
-              "type": "object",
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
+      "type": "object",
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "account_address": {
+          "description": "The account address for which to apply the configuration If None, the sender must be an Account If Some, the sender must be a direct or indirect owner (through sub-accounts) of the specified account.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "msg": {
+          "$ref": "#/definitions/AdapterBaseMsg"
         }
-      ]
+      },
+      "additionalProperties": false
     },
     "Binary": {
       "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
@@ -287,343 +421,6 @@
               "$ref": "#/definitions/Binary"
             }
           ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "ChallengeEntryUpdate": {
-      "description": "Only this struct and these fields are allowed to be updated. The status cannot be externally updated, it is updated by the contract.",
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "name": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "ChallengeExecuteMsg": {
-      "description": "Challenge execute messages",
-      "oneOf": [
-        {
-          "description": "Update challenge config",
-          "type": "object",
-          "required": [
-            "update_config"
-          ],
-          "properties": {
-            "update_config": {
-              "type": "object",
-              "required": [
-                "new_vote_config"
-              ],
-              "properties": {
-                "new_vote_config": {
-                  "description": "New config for vote",
-                  "allOf": [
-                    {
-                      "$ref": "#/definitions/VoteConfig"
-                    }
-                  ]
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Create new challenge",
-          "type": "object",
-          "required": [
-            "create_challenge"
-          ],
-          "properties": {
-            "create_challenge": {
-              "type": "object",
-              "required": [
-                "challenge_req"
-              ],
-              "properties": {
-                "challenge_req": {
-                  "description": "New challenge arguments",
-                  "allOf": [
-                    {
-                      "$ref": "#/definitions/ChallengeRequest"
-                    }
-                  ]
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Update existing challenge",
-          "type": "object",
-          "required": [
-            "update_challenge"
-          ],
-          "properties": {
-            "update_challenge": {
-              "type": "object",
-              "required": [
-                "challenge",
-                "challenge_id"
-              ],
-              "properties": {
-                "challenge": {
-                  "description": "Updates to this challenge",
-                  "allOf": [
-                    {
-                      "$ref": "#/definitions/ChallengeEntryUpdate"
-                    }
-                  ]
-                },
-                "challenge_id": {
-                  "description": "Id of the challenge to update",
-                  "type": "integer",
-                  "format": "uint64",
-                  "minimum": 0.0
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Cancel challenge",
-          "type": "object",
-          "required": [
-            "cancel_challenge"
-          ],
-          "properties": {
-            "cancel_challenge": {
-              "type": "object",
-              "required": [
-                "challenge_id"
-              ],
-              "properties": {
-                "challenge_id": {
-                  "description": "Challenge Id to cancel",
-                  "type": "integer",
-                  "format": "uint64",
-                  "minimum": 0.0
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Update list of friends for challenge",
-          "type": "object",
-          "required": [
-            "update_friends_for_challenge"
-          ],
-          "properties": {
-            "update_friends_for_challenge": {
-              "type": "object",
-              "required": [
-                "challenge_id",
-                "friends",
-                "op_kind"
-              ],
-              "properties": {
-                "challenge_id": {
-                  "description": "Id of the challenge to update",
-                  "type": "integer",
-                  "format": "uint64",
-                  "minimum": 0.0
-                },
-                "friends": {
-                  "description": "List of added or removed Friends",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/Friend_for_String"
-                  }
-                },
-                "op_kind": {
-                  "description": "Kind of operation: add or remove friends",
-                  "allOf": [
-                    {
-                      "$ref": "#/definitions/UpdateFriendsOpKind"
-                    }
-                  ]
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Cast vote as a friend",
-          "type": "object",
-          "required": [
-            "cast_vote"
-          ],
-          "properties": {
-            "cast_vote": {
-              "type": "object",
-              "required": [
-                "challenge_id",
-                "vote_to_punish"
-              ],
-              "properties": {
-                "challenge_id": {
-                  "description": "Challenge Id to cast vote on",
-                  "type": "integer",
-                  "format": "uint64",
-                  "minimum": 0.0
-                },
-                "vote_to_punish": {
-                  "description": "Wether voter thinks admin deserves punishment",
-                  "allOf": [
-                    {
-                      "$ref": "#/definitions/Vote"
-                    }
-                  ]
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Count votes for challenge id",
-          "type": "object",
-          "required": [
-            "count_votes"
-          ],
-          "properties": {
-            "count_votes": {
-              "type": "object",
-              "required": [
-                "challenge_id"
-              ],
-              "properties": {
-                "challenge_id": {
-                  "description": "Challenge Id for counting votes",
-                  "type": "integer",
-                  "format": "uint64",
-                  "minimum": 0.0
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Veto the last vote",
-          "type": "object",
-          "required": [
-            "veto"
-          ],
-          "properties": {
-            "veto": {
-              "type": "object",
-              "required": [
-                "challenge_id"
-              ],
-              "properties": {
-                "challenge_id": {
-                  "description": "Challenge id to do the veto",
-                  "type": "integer",
-                  "format": "uint64",
-                  "minimum": 0.0
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "ChallengeRequest": {
-      "description": "Arguments for new challenge",
-      "type": "object",
-      "required": [
-        "challenge_duration_seconds",
-        "init_friends",
-        "name",
-        "proposal_duration_seconds",
-        "strike_asset",
-        "strike_strategy"
-      ],
-      "properties": {
-        "challenge_duration_seconds": {
-          "description": "In what duration challenge should end",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Uint64"
-            }
-          ]
-        },
-        "description": {
-          "description": "Description of the challenge",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "init_friends": {
-          "description": "Initial list of friends",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Friend_for_String"
-          }
-        },
-        "name": {
-          "description": "Name of challenge",
-          "type": "string"
-        },
-        "proposal_duration_seconds": {
-          "description": "Duration set for each proposal Proposals starts after one vote initiated by any of the friends",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Uint64"
-            }
-          ]
-        },
-        "strike_asset": {
-          "description": "Asset for punishment for failing a challenge",
-          "allOf": [
-            {
-              "$ref": "#/definitions/AssetEntry"
-            }
-          ]
-        },
-        "strike_strategy": {
-          "description": "How strike will get distributed between friends",
-          "allOf": [
-            {
-              "$ref": "#/definitions/StrikeStrategy"
-            }
-          ]
-        },
-        "strikes_limit": {
-          "description": "Strike limit, defaults to 1",
-          "type": [
-            "integer",
-            "null"
-          ],
-          "format": "uint8",
-          "minimum": 0.0
         }
       },
       "additionalProperties": false
@@ -792,56 +589,6 @@
         }
       },
       "additionalProperties": false
-    },
-    "FriendByAddr_for_String": {
-      "description": "Friend by address",
-      "type": "object",
-      "required": [
-        "address",
-        "name"
-      ],
-      "properties": {
-        "address": {
-          "description": "Address of the friend",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name of the friend",
-          "type": "string"
-        }
-      },
-      "additionalProperties": false
-    },
-    "Friend_for_String": {
-      "description": "Friend object",
-      "oneOf": [
-        {
-          "description": "Friend with address and a name",
-          "type": "object",
-          "required": [
-            "addr"
-          ],
-          "properties": {
-            "addr": {
-              "$ref": "#/definitions/FriendByAddr_for_String"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Abstract Account Id of the friend",
-          "type": "object",
-          "required": [
-            "abstract_account"
-          ],
-          "properties": {
-            "abstract_account": {
-              "$ref": "#/definitions/AccountId"
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
     },
     "GrpcQuery": {
       "description": "Queries the chain using a grpc query. This allows to query information that is not exposed in our API. The chain needs to allowlist the supported queries. The drawback of this query is that you have to handle the protobuf encoding and decoding yourself.\n\nThe returned data is protobuf encoded. The protobuf type depends on the query. Because of this, using it with the [`query`](crate::QuerierWrapper::query) function will result in a deserialization error. Use [`raw_query`](crate::Querier::raw_query) or [`query_grpc`](crate::QuerierWrapper::query_grpc) instead.\n\nTo find the path, as well as the request and response types, you can query the chain's gRPC endpoint using a tool like [grpcurl](https://github.com/fullstorydev/grpcurl).",
@@ -1182,6 +929,540 @@
         }
       ]
     },
+    "MoneyMarketAnsAction": {
+      "description": "Possible actions to perform on a Money Market The following actions use the Abstarct Name Service",
+      "oneOf": [
+        {
+          "description": "Deposit funds for lending.",
+          "type": "object",
+          "required": [
+            "deposit"
+          ],
+          "properties": {
+            "deposit": {
+              "type": "object",
+              "required": [
+                "lending_asset"
+              ],
+              "properties": {
+                "lending_asset": {
+                  "description": "Asset to deposit",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AnsAsset"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Withdraw lent funds",
+          "type": "object",
+          "required": [
+            "withdraw"
+          ],
+          "properties": {
+            "withdraw": {
+              "type": "object",
+              "required": [
+                "lent_asset"
+              ],
+              "properties": {
+                "lent_asset": {
+                  "description": "Asset to withdraw",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AnsAsset"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Deposit Collateral to borrow against",
+          "type": "object",
+          "required": [
+            "provide_collateral"
+          ],
+          "properties": {
+            "provide_collateral": {
+              "type": "object",
+              "required": [
+                "borrowable_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrowable_asset": {
+                  "description": "Asset that identifies the market you want to deposit in",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetEntry"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset to deposit",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AnsAsset"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Withdraw Collateral to borrow against",
+          "type": "object",
+          "required": [
+            "withdraw_collateral"
+          ],
+          "properties": {
+            "withdraw_collateral": {
+              "type": "object",
+              "required": [
+                "borrowable_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrowable_asset": {
+                  "description": "Asset that identifies the market you want to withdraw from",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetEntry"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset to deposit",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AnsAsset"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Borrow funds from the money market",
+          "type": "object",
+          "required": [
+            "borrow"
+          ],
+          "properties": {
+            "borrow": {
+              "type": "object",
+              "required": [
+                "borrow_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrow_asset": {
+                  "description": "Asset to borrow",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AnsAsset"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset that identifies the market you want to borrow from",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetEntry"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Repay funds to the money market",
+          "type": "object",
+          "required": [
+            "repay"
+          ],
+          "properties": {
+            "repay": {
+              "type": "object",
+              "required": [
+                "borrowed_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrowed_asset": {
+                  "description": "Asset to repay",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AnsAsset"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset that identifies the market you want to borrow from",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetEntry"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "MoneyMarketExecuteMsg": {
+      "description": "MoneyMarket Execute msg",
+      "oneOf": [
+        {
+          "description": "Update the fee",
+          "type": "object",
+          "required": [
+            "update_fee"
+          ],
+          "properties": {
+            "update_fee": {
+              "type": "object",
+              "properties": {
+                "money_market_fee": {
+                  "description": "New fee to set",
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Decimal"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "recipient_account": {
+                  "description": "New recipient account for fees",
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "format": "uint32",
+                  "minimum": 0.0
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Action to perform on the DEX with ans asset denomination",
+          "type": "object",
+          "required": [
+            "ans_action"
+          ],
+          "properties": {
+            "ans_action": {
+              "type": "object",
+              "required": [
+                "action",
+                "money_market"
+              ],
+              "properties": {
+                "action": {
+                  "description": "The action to perform",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/MoneyMarketAnsAction"
+                    }
+                  ]
+                },
+                "money_market": {
+                  "description": "The name of the dex to interact with",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Action to perform on the DEX with raw asset denominations",
+          "type": "object",
+          "required": [
+            "raw_action"
+          ],
+          "properties": {
+            "raw_action": {
+              "type": "object",
+              "required": [
+                "action",
+                "money_market"
+              ],
+              "properties": {
+                "action": {
+                  "description": "The action to perform",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/MoneyMarketRawAction"
+                    }
+                  ]
+                },
+                "money_market": {
+                  "description": "The name of the dex to interact with",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "MoneyMarketRawAction": {
+      "description": "Action to execute on a money_market",
+      "type": "object",
+      "required": [
+        "contract_addr",
+        "request"
+      ],
+      "properties": {
+        "contract_addr": {
+          "description": "The contract address to execute it against",
+          "type": "string"
+        },
+        "request": {
+          "description": "The action to execute",
+          "allOf": [
+            {
+              "$ref": "#/definitions/MoneyMarketRawRequest"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "MoneyMarketRawRequest": {
+      "description": "Possible actions to perform on a Money Market This is an example using raw assets",
+      "oneOf": [
+        {
+          "description": "Deposit funds for lending.",
+          "type": "object",
+          "required": [
+            "deposit"
+          ],
+          "properties": {
+            "deposit": {
+              "type": "object",
+              "required": [
+                "lending_asset"
+              ],
+              "properties": {
+                "lending_asset": {
+                  "description": "Asset to deposit",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetBase_for_String"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Withdraw lent funds",
+          "type": "object",
+          "required": [
+            "withdraw"
+          ],
+          "properties": {
+            "withdraw": {
+              "type": "object",
+              "required": [
+                "lent_asset"
+              ],
+              "properties": {
+                "lent_asset": {
+                  "description": "Asset to withdraw",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetBase_for_String"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Deposit Collateral to borrow against",
+          "type": "object",
+          "required": [
+            "provide_collateral"
+          ],
+          "properties": {
+            "provide_collateral": {
+              "type": "object",
+              "required": [
+                "borrowable_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrowable_asset": {
+                  "description": "Asset that identifies the market you want to deposit in",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetInfoBase_for_String"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset to deposit",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetBase_for_String"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Withdraw Collateral to borrow against",
+          "type": "object",
+          "required": [
+            "withdraw_collateral"
+          ],
+          "properties": {
+            "withdraw_collateral": {
+              "type": "object",
+              "required": [
+                "borrowable_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrowable_asset": {
+                  "description": "Asset that identifies the market you want to withdraw from",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetInfoBase_for_String"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset to deposit",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetBase_for_String"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Borrow funds from the money market",
+          "type": "object",
+          "required": [
+            "borrow"
+          ],
+          "properties": {
+            "borrow": {
+              "type": "object",
+              "required": [
+                "borrow_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrow_asset": {
+                  "description": "Asset to borrow",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetBase_for_String"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset that identifies the market you want to borrow from",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetInfoBase_for_String"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Repay funds to the money market",
+          "type": "object",
+          "required": [
+            "repay"
+          ],
+          "properties": {
+            "repay": {
+              "type": "object",
+              "required": [
+                "borrowed_asset",
+                "collateral_asset"
+              ],
+              "properties": {
+                "borrowed_asset": {
+                  "description": "Asset to repay",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetBase_for_String"
+                    }
+                  ]
+                },
+                "collateral_asset": {
+                  "description": "Asset that identifies the market you want to borrow from",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/AssetInfoBase_for_String"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
     "MsgResponse": {
       "type": "object",
       "required": [
@@ -1514,37 +1795,6 @@
         }
       ]
     },
-    "StrikeStrategy": {
-      "description": "Strategy for striking the admin",
-      "oneOf": [
-        {
-          "description": "Split amount between friends",
-          "type": "object",
-          "required": [
-            "split"
-          ],
-          "properties": {
-            "split": {
-              "$ref": "#/definitions/Uint128"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "description": "Amount for every friend",
-          "type": "object",
-          "required": [
-            "per_friend"
-          ],
-          "properties": {
-            "per_friend": {
-              "$ref": "#/definitions/Uint128"
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
     "SubMsgResponse": {
       "description": "The information we get back from a successful sub message execution, with full Cosmos SDK events.",
       "type": "object",
@@ -1580,35 +1830,6 @@
       },
       "additionalProperties": false
     },
-    "Threshold": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "majority"
-          ],
-          "properties": {
-            "majority": {
-              "type": "object",
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "percentage"
-          ],
-          "properties": {
-            "percentage": {
-              "$ref": "#/definitions/Decimal"
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
     "TruncatedChainId": {
       "description": "The name of a chain, aka the chain-id without the post-fix number. ex. `cosmoshub-4` -> `cosmoshub`, `juno-1` -> `juno`",
       "type": "string"
@@ -1620,80 +1841,6 @@
     "Uint64": {
       "description": "A thin wrapper around u64 that is using strings for JSON encoding/decoding, such that the full u64 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.\n\n# Examples\n\nUse `from` to create instances of this and `u64` to get the value out:\n\n``` # use cosmwasm_std::Uint64; let a = Uint64::from(42u64); assert_eq!(a.u64(), 42);\n\nlet b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```",
       "type": "string"
-    },
-    "UpdateFriendsOpKind": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "add"
-          ],
-          "properties": {
-            "add": {
-              "type": "object",
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "remove"
-          ],
-          "properties": {
-            "remove": {
-              "type": "object",
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "Vote": {
-      "description": "Vote struct",
-      "type": "object",
-      "required": [
-        "vote"
-      ],
-      "properties": {
-        "memo": {
-          "description": "memo for the vote",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "vote": {
-          "description": "true: Vote for false: Vote against",
-          "type": "boolean"
-        }
-      },
-      "additionalProperties": false
-    },
-    "VoteConfig": {
-      "type": "object",
-      "required": [
-        "threshold"
-      ],
-      "properties": {
-        "threshold": {
-          "$ref": "#/definitions/Threshold"
-        },
-        "veto_duration_seconds": {
-          "description": "Veto duration after the first vote None disables veto",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Uint64"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
     },
     "WasmQuery": {
       "oneOf": [
