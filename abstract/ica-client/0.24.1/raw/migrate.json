@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MigrateMsg",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "instantiate"
+      ],
+      "properties": {
+        "instantiate": {
+          "$ref": "#/definitions/InstantiateMsg"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "migrate"
+      ],
+      "properties": {
+        "migrate": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "InstantiateMsg": {
+      "description": "This needs no info. Owner of the contract is whoever signed the InstantiateMsg.",
+      "type": "object",
+      "required": [
+        "ans_host_address",
+        "registry_address"
+      ],
+      "properties": {
+        "ans_host_address": {
+          "type": "string"
+        },
+        "registry_address": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
