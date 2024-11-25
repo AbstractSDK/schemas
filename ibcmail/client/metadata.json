@@ -1,9 +1,9 @@
 {
-  "name": "IBC Mail Client",
-  "description": "Send and receive mail!",
+  "name": "IBC Mail Server",
+  "description": "IBC mail adapter.",
   "website": "",
   "docs": "",
-  "type": "app",
-  "icon": "FaMailBulk",
+  "type": "adapter",
+  "icon": "GiTrade",
   "enabled": true
 }
